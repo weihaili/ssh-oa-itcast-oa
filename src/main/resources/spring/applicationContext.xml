@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<!-- load properties configuration files -->
+	<context:property-placeholder location="classpath:resource/db.properties"/>
+	<!-- <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<set>
+				<value>classpath:resource/*.properties</value>
+			</set>
+		</property>
+	</bean> -->
+
+	<!-- auto scanner and auto assembly bean -->
+	<context:component-scan base-package="org.cn.kkl"></context:component-scan>
+
+	<!-- spring (set sessionFactory) and hibernate integration -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="configLocation" value="classpath:hibernate/hibernate.cfg.xml"></property>
+		<property name="dataSource">
+			<!-- anonymous data source configuration id can be omitted-->
+			<bean class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+				<property name="jdbcUrl" value="${jdbc.url}" />
+				<property name="user" value="${jdbc.username}" />
+				<property name="password" value="${jdbc.password}" />
+				<property name="driverClass" value="${jdbc.driver}" />
+				<property name="initialPoolSize" value="3"></property>
+				<property name="minPoolSize" value="3"></property>
+				<property name="maxPoolSize" value="15"></property>
+				<property name="acquireIncrement" value="3"></property>
+				<property name="maxStatements" value="8"></property>
+				<property name="maxStatementsPerConnection" value="5"></property>
+				<property name="maxIdleTime" value="1800"></property>
+			</bean>
+		</property>
+	</bean>
+	
+	<!-- declare transaction configuration ,base on annotation-->
+	<bean id="txmanager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="txmanager"/>
+	
+
+</beans>
